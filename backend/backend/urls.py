@@ -4,11 +4,11 @@ from django.urls import re_path as url
 from backend_api.views import *
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('register/', UserRegister.as_view(), name='register'),
-    path('login/', UserLogin.as_view(), name='login'),
-    path('logout/', UserLogout.as_view(), name='logout'),
-    path('user/', UserView.as_view(), name='user'),
+    path('api/admin/', admin.site.urls),
+    path('api/register/', UserRegister.as_view(), name='register'),
+    path('api/login/', UserLogin.as_view(), name='login'),
+    path('api/logout/', UserLogout.as_view(), name='logout'),
+    path('api/user/', UserView.as_view(), name='user'),
     path('api/audit/', AuditView.as_view(), name='audit_view'),
     path('api/user/', UserView.as_view(), name='user_view'),
     path('api/doctor/', DoctorView.as_view(), name='doctor_view'),
