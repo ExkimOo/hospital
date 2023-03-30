@@ -22,18 +22,20 @@ function App() {
 
     return (
         <BrowserRouter>
-            <Header />
+            <Header client={client}
+                    currentUser={currentUser}
+                    setCurrentUser={setCurrentUser}/>
             <div className="App">
                 <Routes>
-                    <Route path="/auth" element={<Authorize client={client}
-                                                            currentUser={currentUser}
-                                                            setCurrentUser={setCurrentUser}/>}/>
-                    <Route path="/profile" element={<Profile client={client}
+                    {<Route path="/auth" element={<Authorize client={client}
                                                              currentUser={currentUser}
-                                                             setCurrentUser={setCurrentUser}/>}/>}/>
+                                                             setCurrentUser={setCurrentUser}/>}/>}
+                    {<Route path="/profile" element={<Profile client={client}
+                                                              currentUser={currentUser}
+                                                              setCurrentUser={setCurrentUser}/>}/>}
                     {/*<Route path="/cabinet" element={<Cabinet />}/>*/}
-                    <Route path="/schedule" element={<Schedule />}/>
-                    <Route path="/audit" element={<Audit />}/>
+                    <Route path="/schedule" element={<Schedule client={client}/>}/>
+                    <Route path="/audit" element={<Audit client={client}/>}/>
                 </Routes>
             </div>
         </BrowserRouter>

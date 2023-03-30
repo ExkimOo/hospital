@@ -3,7 +3,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 class Audit(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     action = models.CharField(max_length=30)
     user = models.CharField(max_length=100)
     table = models.CharField(max_length=100)
@@ -11,7 +11,7 @@ class Audit(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, username, password=None):
         if not email:
             raise ValueError('An email is required.')
 
@@ -19,21 +19,22 @@ class UserManager(BaseUserManager):
             raise ValueError('A password is reqiured.')
 
         email = self.normalize_email(email)
-        user = self.model(email=email)
+        user = self.model(email=email, username=username)
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_superuser(self, email, password=None):
+    def create_superuser(self, email, username, password=None):
         if not email:
             raise ValueError('An email is required.')
 
         if not password:
             raise ValueError('A password is reqiured.')
 
-        user = self.create_user(email, password)
+        user = self.create_user(email, username, password)
         user.is_superuser = True
+        user.is_staff = True
         user.save()
 
         return user
@@ -43,6 +44,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50)
     role = models.CharField(max_length=100)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     objects = UserManager()
@@ -52,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Doctor(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     birthdate = models.DateField()
     name = models.CharField(max_length=100)
     specialization = models.CharField(max_length=100)
@@ -61,7 +64,7 @@ class Doctor(models.Model):
 
 
 class Patient(models.Model):
-    id = models.SmallIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     gender = models.CharField(max_length=1)
     insurance = models.CharField(max_length=16)
     passport = models.CharField(max_length=200)
@@ -73,7 +76,7 @@ class Patient(models.Model):
 
 
 class Diagnosis(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     patientid = models.ForeignKey(Patient, on_delete=models.PROTECT)
     doctorid = models.ForeignKey(Doctor, on_delete=models.PROTECT)
     disease = models.CharField(max_length=1000)
@@ -81,14 +84,14 @@ class Diagnosis(models.Model):
 
 
 class Room(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     number = models.BigIntegerField()
     name = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
 
 
 class Schedule(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     doctorid = models.ForeignKey(Doctor, on_delete=models.PROTECT)
     roomid = models.ForeignKey(Room, on_delete=models.PROTECT)
     worktime = models.CharField(max_length=100)

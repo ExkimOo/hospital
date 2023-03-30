@@ -1,16 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
+import {Navigate, useNavigate} from "react-router-dom";
 
 import '../styles/Profile.css';
 
 function Profile({client, currentUser, setCurrentUser}) {
     const navigate = useNavigate();
-
     const [user, setUser] = useState({});
 
+    // useEffect(() => {
+    //     if (!currentUser) {
+    //         navigate('/auth/', {replace: true});
+    //     }
+    // }, [currentUser]);
+
     useEffect(() => {
-        axios.get('/api/user-profile')
+        client.get(`/api/userprofile/`)
             .then(response => {
                 setUser(response.data);
             })
@@ -19,17 +23,6 @@ function Profile({client, currentUser, setCurrentUser}) {
             });
     }, []);
 
-    const submitLogout = (e) => {
-        e.preventDefault();
-        client.post(
-            "/api/logout/",
-            {withCredentials: true}
-        ).then(function (res) {
-            setCurrentUser(true);
-            navigate('/auth/', {replace: true});
-        });
-    }
-    console.log(currentUser)
     if (currentUser) {
         return (
             <div className="profile">
@@ -48,17 +41,10 @@ function Profile({client, currentUser, setCurrentUser}) {
                         <input type="text" value={user.role} disabled/>
                     </div>
                 </div>
-                <form onSubmit={submitLogout}>
-                    <button className="logout-button" style={{backgroundColor: 'red'}}>
-                        Выйти
-                    </button>
-                </form>
             </div>
         );
-    } else {
-        setCurrentUser(true);
-        navigate('/auth/', {replace: true});
     }
+    ;
 }
 
 export default Profile;

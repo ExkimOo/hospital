@@ -1,66 +1,48 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 
 import '../styles/Schedule.css';
 
-function RoomTable() {
-    const rooms = [
-        {
-            id: 1,
-            number: 101,
-            name: 'Room 101',
-            doctor: 'Dr. Smith',
-            specialization: 'Cardiology',
-            workDays: 'Mon - Fri',
-            workHours: '9am - 5pm'
-        },
-        {
-            id: 2,
-            number: 102,
-            name: 'Room 102',
-            doctor: 'Dr. Johnson',
-            specialization: 'Pediatrics',
-            workDays: 'Mon - Sat',
-            workHours: '8am - 6pm'
-        },
-        {
-            id: 3,
-            number: 103,
-            name: 'Room 103',
-            doctor: 'Dr. Garcia',
-            specialization: 'Dermatology',
-            workDays: 'Tue - Thu',
-            workHours: '10am - 4pm'
-        },
-    ];
+const Schedule = ({client}) => {
+    const [scheduleTable, setScheduleTable] = useState([]);
+
+    useEffect(() => {
+        client.get(`/api/scheduletable`)
+            .then(response => {
+                setScheduleTable(response.data);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }, []);
 
     return (
-            <div className="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Number</th>
-                        <th>Room Name</th>
-                        <th>Doctor Name</th>
-                        <th>Doctor Specialization</th>
-                        <th>Work Days</th>
-                        <th>Work Hours</th>
+        <div className="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Room Name</th>
+                    <th>Doctor Name</th>
+                    <th>Doctor Specialization</th>
+                    <th>Work Days</th>
+                    <th>Work Hours</th>
+                </tr>
+                </thead>
+                <tbody>
+                {scheduleTable.map((room) => (
+                    <tr key={room.id}>
+                        <td>{room.number}</td>
+                        <td>{room.room_name}</td>
+                        <td>{room.doctor_name}</td>
+                        <td>{room.doctor_specialization}</td>
+                        <td>{room.work_days}</td>
+                        <td>{room.work_hours}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {rooms.map((room) => (
-                        <tr key={room.id}>
-                            <td>{room.number}</td>
-                            <td>{room.name}</td>
-                            <td>{room.doctor}</td>
-                            <td>{room.specialization}</td>
-                            <td>{room.workDays}</td>
-                            <td>{room.workHours}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+                ))}
+                </tbody>
+            </table>
+        </div>
     );
 }
 
-export default RoomTable;
+export default Schedule;

@@ -11,6 +11,12 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('');
 
+    // useEffect(() => {
+    //     if (currentUser) {
+    //         navigate('/profile/', {replace: true});
+    //     }
+    // }, [currentUser]);
+
     useEffect(() => {
         client.get("/api/user/")
             .then(function (res) {
@@ -158,7 +164,7 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
             </div>
         );
     } else {
-        navigate('/profile/', {replace: true})
+        // navigate('/profile/', {replace: true});
     }
     ;
 };

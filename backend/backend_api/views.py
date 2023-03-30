@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, login, logout
-from django.shortcuts import render
-from rest_framework import permissions, status
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from rest_framework import permissions, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,7 +13,7 @@ from backend_api.validations import custom_validation, validate_email, validate_
 
 
 class UserRegister(APIView):
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         clean_data = custom_validation(request.data)
@@ -25,35 +26,36 @@ class UserRegister(APIView):
 
 
 class UserLogin(APIView):
-	permission_classes = (permissions.AllowAny, )
-	authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = (SessionAuthentication,)
 
-	def post(self, request):
-		data = request.data
-		assert validate_email(data)
-		assert validate_password(data)
-		serializer = UserLoginSerializer(data=data)
-		if serializer.is_valid(raise_exception=True):
-			user = serializer.check_user(data)
-			login(request, user)
-			return Response(serializer.data, status=status.HTTP_200_OK)
+    def post(self, request):
+        data = request.data
+        assert validate_email(data)
+        assert validate_password(data)
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.check_user(data)
+            login(request, user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
-	permission_classes = (permissions.AllowAny, )
-	authentication_classes = ()
-	def post(self, request):
-		logout(request)
-		return Response(status=status.HTTP_200_OK)
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
 
 
-class UserView(APIView):
-	permission_classes = (permissions.IsAuthenticated, )
-	authentication_classes = (SessionAuthentication, )
-
-	def get(self, request):
-		serializer = UserSerializer(request.user)
-		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+# class UserView(APIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (SessionAuthentication,)
+#
+#     def get(self, request):
+#         serializer = UserSerializer(request.user)
+#         return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
 
 class AuditView(APIView):
@@ -76,25 +78,29 @@ class AuditView(APIView):
             return Response(serializer.data)
 
 
-class UserView(APIView):
-    def get(self, request):
-        output = [
-            {
-                "id": output.id,
-                "login": output.login,
-                "password": output.password,
-                "role": output.role,
-                "created": output.created,
-                "active": output.active
-            } for output in User.objects.all()
-        ]
-        return Response(output)
+# class UserView(APIView):
+#     def get(self, request):
+#         output = [
+#             {
+#                 "id": output.id,
+#                 "email": output.email,
+#                 "username": output.username,
+#                 "password": output.password,
+#                 "role": output.role,
+#             } for output in User.objects.all()
+#         ]
+#         return Response(output)
+#
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data)
 
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class DoctorView(APIView):
@@ -199,3 +205,56 @@ class DiagnosisView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+
+
+class UserProfile(APIView):
+    def get(self, request):
+        user_id = request.user.id
+        output = User.objects.get(pk=user_id)
+        return Response({"id": output.id,
+                         "email": output.email,
+                         "username": output.username,
+                         "role": output.role})
+
+
+class AdminAudit(APIView):
+    def get(self, request):
+        # user_id = request.user.id
+        # output = User.objects.get(pk=user_id)
+        output = [
+            {
+                "id": output.id,
+                "action": output.action,
+                "user": output.user,
+                "table": output.table,
+                "created": output.created
+            } for output in Audit.objects.all()
+        ]
+        return Response(output)
+
+
+class ScheduleTable(APIView):
+    def get(self, request):
+        table = Schedule.objects.raw('''
+        SELECT  1 as id,
+                r.number,
+                r.name,
+                d.name AS doctorname,
+                d.specialization,
+                s.days,
+                s.worktime
+               FROM "backend_api_schedule" s
+                 JOIN "backend_api_room" r ON r.id = s.roomid_id
+                 JOIN "backend_api_doctor" d ON d.id = s.doctorid_id;
+        ''')
+        output = [
+            {
+                "number": output.number,
+                "room_name": output.name,
+                "doctor_name": output.doctorname,
+                "doctor_specialization": output.specialization,
+                "work_days": output.days,
+                "work_hours": output.worktime
+            } for output in table
+        ]
+        return Response(output)
