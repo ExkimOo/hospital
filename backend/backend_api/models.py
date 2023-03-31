@@ -11,7 +11,7 @@ class Audit(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    def create_user(self, email, username, password=None, role=None):
         if not email:
             raise ValueError('An email is required.')
 
@@ -19,20 +19,20 @@ class UserManager(BaseUserManager):
             raise ValueError('A password is reqiured.')
 
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username)
+        user = self.model(email=email, username=username, role=role)
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_superuser(self, email, username, password=None):
+    def create_superuser(self, email, username, password=None, role='Admin'):
         if not email:
             raise ValueError('An email is required.')
 
         if not password:
             raise ValueError('A password is reqiured.')
 
-        user = self.create_user(email, username, password)
+        user = self.create_user(email, username, password, role)
         user.is_superuser = True
         user.is_staff = True
         user.save()
@@ -60,7 +60,7 @@ class Doctor(models.Model):
     name = models.CharField(max_length=100)
     specialization = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
-    userid = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
 
 
 class Patient(models.Model):
@@ -72,13 +72,13 @@ class Patient(models.Model):
     phone = models.CharField(max_length=15)
     created = models.DateTimeField(auto_now_add=True)
     birthdate = models.DateField()
-    userid = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
 
 
 class Diagnosis(models.Model):
     id = models.AutoField(primary_key=True)
-    patientid = models.ForeignKey(Patient, on_delete=models.PROTECT)
-    doctorid = models.ForeignKey(Doctor, on_delete=models.PROTECT)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    doctor = models.ForeignKey(Doctor, on_delete=models.PROTECT)
     disease = models.CharField(max_length=1000)
     visitdate = models.DateTimeField(auto_now_add=True)
 
@@ -92,7 +92,7 @@ class Room(models.Model):
 
 class Schedule(models.Model):
     id = models.AutoField(primary_key=True)
-    doctorid = models.ForeignKey(Doctor, on_delete=models.PROTECT)
-    roomid = models.ForeignKey(Room, on_delete=models.PROTECT)
+    doctor = models.ForeignKey(Doctor, on_delete=models.PROTECT)
+    room = models.ForeignKey(Room, on_delete=models.PROTECT)
     worktime = models.CharField(max_length=100)
     days = models.CharField(max_length=50)

@@ -188,6 +188,8 @@ class ScheduleView(APIView):
 
 
 class DiagnosisView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request):
         output = [
             {
@@ -208,6 +210,8 @@ class DiagnosisView(APIView):
 
 
 class UserProfile(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request):
         user_id = request.user.id
         output = User.objects.get(pk=user_id)
@@ -218,6 +222,8 @@ class UserProfile(APIView):
 
 
 class AdminAudit(APIView):
+    permission_classes = (permissions.IsAdminUser)
+
     def get(self, request):
         # user_id = request.user.id
         # output = User.objects.get(pk=user_id)
@@ -234,19 +240,20 @@ class AdminAudit(APIView):
 
 
 class ScheduleTable(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request):
-        table = Schedule.objects.raw('''
-        SELECT  1 as id,
-                r.number,
-                r.name,
-                d.name AS doctorname,
-                d.specialization,
-                s.days,
-                s.worktime
-               FROM "backend_api_schedule" s
-                 JOIN "backend_api_room" r ON r.id = s.roomid_id
-                 JOIN "backend_api_doctor" d ON d.id = s.doctorid_id;
-        ''')
+        raw_query = '''SELECT  1 as id,
+                                r.number,
+                                r.name,
+                                d.name AS doctorname,
+                                d.specialization,
+                                s.days,
+                                s.worktime
+                       FROM "backend_api_schedule" s
+                       INNER JOIN "backend_api_room" r ON r.id = s.room_id
+                       INNER JOIN "backend_api_doctor" d ON d.id = s.doctor_id;'''
+        table = Schedule.objects.raw(raw_query)
         output = [
             {
                 "number": output.number,
@@ -257,4 +264,85 @@ class ScheduleTable(APIView):
                 "work_hours": output.worktime
             } for output in table
         ]
+        return Response(output)
+
+
+class DiagnosisUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user_role = request.user.role
+        user_id = request.user.id
+
+        match user_role:
+            case "Admin":
+                raw_query = '''SELECT 1 as id,
+                                      doc.id AS doctor_id,
+                                      doc.name AS doctor_name,
+                                      doc.specialization AS doctor_specialization,
+                                      p.id AS patient_id,
+                                      p.name AS patient_name,
+                                      diag.id AS diagnosis_id,
+                                      diag.visitdate AS visit_date
+                               FROM "backend_api_diagnosis" as diag
+                               JOIN "backend_api_patient" p ON p.id = diag.patient_id
+                               JOIN "backend_api_doctor" doc ON doc.id = diag.doctor_id;'''
+                table = Diagnosis.objects.raw(raw_query)
+                output = [
+                    {
+                        "Doctor ID": output.doctor_id,
+                        "Doctor Name": output.doctor_name,
+                        "Doctor Specialization": output.doctor_specialization,
+                        "Patient ID": output.patient_id,
+                        "Patient Name": output.patient_name,
+                        "Diagnosis ID": output.diagnosis_id,
+                        "Visit Date": output.visit_date
+                    } for output in table
+                ]
+            case "Doctor":
+                raw_query = f''' SELECT p.id,
+                                        p.name,
+                                        p.birthdate,
+                                        p.gender,
+                                        d.disease,
+                                        d.visitdate
+                                        FROM "backend_api_diagnosis" d
+                                        JOIN "backend_api_patient" p ON d.patient_id = p.id
+                                        WHERE d.doctor_id = (( SELECT "backend_api_doctor".id
+                                                                        FROM "backend_api_doctor"
+                                                                        WHERE "backend_api_doctor".user_id = {user_id}));'''
+                table = Diagnosis.objects.raw(raw_query)
+                output = [
+                    {
+                        "Patient ID": output.id,
+                        "Name": output.name,
+                        "Birthdate": output.birthdate,
+                        "Gender": output.gender,
+                        "Disease": output.disease,
+                        "Visit Date": output.visitdate,
+                    } for output in table
+                ]
+            case "Patient":
+                raw_query = f'''SELECT 1 as id,
+                                       diag.disease,
+                                       doc.name AS doctorname,
+                                       doc.specialization,
+                                       diag.visitdate
+                                FROM "backend_api_diagnosis" diag
+                                JOIN "backend_api_doctor" doc ON doc.id = diag.doctor_id
+                                WHERE diag.patient_id = ((SELECT "backend_api_patient".id
+                                                         FROM "backend_api_patient"
+                                                         WHERE "backend_api_patient".user_id = {user_id}));'''
+                table = Diagnosis.objects.raw(raw_query)
+                output = [
+                    {
+                        "Doctor Name": output.doctorname,
+                        "Specialization": output.specialization,
+                        "Disease": output.disease,
+                        "Visit Date": output.visitdate,
+                    } for output in table
+                ]
+            case _:
+                raise Exception("Wrong user role.")
+
         return Response(output)

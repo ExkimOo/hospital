@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/userprofile/', UserProfile.as_view(), name='user_profile'),
     path('api/adminaudit', AdminAudit.as_view(), name='admin_audit'),
     path('api/scheduletable', ScheduleTable.as_view(), name='schedule_table'),
+        path('api/diagnosisuser', DiagnosisUser.as_view(), name='diagnosis_user'),
 ]

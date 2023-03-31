@@ -1,15 +1,11 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import '../styles/Header.css';
 import {useNavigate} from "react-router-dom";
+import {Context} from "../context";
 
-function Header({client, currentUser, setCurrentUser}) {
+function Header({client}) {
     const navigate = useNavigate();
-
-    // useEffect(() => {
-    //     if (!currentUser) {
-    //         navigate('/auth', {replace: true});
-    //     }
-    // }, [currentUser]);
+    const {currentUser, setCurrentUser} = useContext(Context);
 
     const submitLogout = (e) => {
         e.preventDefault();

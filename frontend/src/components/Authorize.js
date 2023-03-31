@@ -1,9 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
+import Cookies from "js-cookie";
 import '../styles/Authorize.css';
+import {Context} from "../context";
 
-const Authorize = ({client, currentUser, setCurrentUser}) => {
+const Authorize = ({client}) => {
     const navigate = useNavigate();
+    const {currentUser, setCurrentUser} = useContext(Context);
 
     const [isSignIn, setIsSignIn] = useState(true);
     const [username, setUsername] = useState('');
@@ -11,19 +14,19 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('');
 
-    // useEffect(() => {
-    //     if (currentUser) {
-    //         navigate('/profile/', {replace: true});
-    //     }
-    // }, [currentUser]);
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/profile/', {replace: true});
+        }
+    }, [currentUser]);
 
     useEffect(() => {
-        client.get("/api/user/")
+        client.get("/api/userprofile/")
             .then(function (res) {
                 setCurrentUser(true);
             })
             .catch(function (error) {
-                setCurrentUser(false);
+                setCurrentUser('');
             });
     }, []);
 
@@ -41,10 +44,11 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
                 "/api/login/",
                 {
                     email: email,
-                    password: password
+                    password: password,
+                    role: role
                 }
             ).then(() => {
-                setCurrentUser(true);
+                setCurrentUser(Cookies.get("sessionid"));
                 navigate('/profile/', {replace: true});
             })
         })
@@ -56,7 +60,8 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
             "/api/login/",
             {
                 email: email,
-                password: password
+                password: password,
+                role: role
             }
         ).then(function (res) {
             setCurrentUser(true);
@@ -164,7 +169,7 @@ const Authorize = ({client, currentUser, setCurrentUser}) => {
             </div>
         );
     } else {
-        // navigate('/profile/', {replace: true});
+        navigate('/profile/', {replace: true});
     }
     ;
 };
