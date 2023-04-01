@@ -1,35 +1,41 @@
 import React, {useContext, useEffect} from 'react';
 import '../styles/Header.css';
 import {useNavigate} from "react-router-dom";
-import {Context} from "../context";
+import {useAuth} from "../hook/useAuth";
 
-function Header({client}) {
+
+function Header() {
     const navigate = useNavigate();
-    const {currentUser, setCurrentUser} = useContext(Context);
+    const {logout} = useAuth();
+    // console.log('header current user', currentUser)
+    // console.log(1)
 
     const submitLogout = (e) => {
         e.preventDefault();
-        client.post(
-            "/api/logout/",
-            {withCredentials: true}
-        ).then(function (res) {
-            setCurrentUser(false);
-        });
-    }
+        console.log(1)
+        logout(() => navigate('/', {replace: true}));
+    };
 
     return (
         <header className="header">
             <div className="logo">Hospital</div>
-            {currentUser && <div className="buttons">
-                <form onSubmit={() => {
-                    navigate('/profile', {replace: true});
-                }}>
-                    <button className="profile-button">Profile</button>
-                </form>
-                <form onSubmit={submitLogout}>
-                    <button className="sign-out-button">Log Out</button>
-                </form>
-            </div>}
+            {
+                // currentUser &&
+                <div className="buttons">
+                    <form onSubmit={() => {
+                        navigate('/profile', {replace: true});
+                    }}>
+                        <button className="profile-button">Profile</button>
+                    </form>
+                    <form onSubmit={() => {
+                        navigate('/audit', {replace: true});
+                    }}>
+                        <button className="profile-button">Audit</button>
+                    </form>
+                    <form onSubmit={submitLogout}>
+                        <button className="sign-out-button">Log Out</button>
+                    </form>
+                </div>}
         </header>
     );
 }

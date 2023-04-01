@@ -1,12 +1,11 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import Cookies from "js-cookie";
 import '../styles/Authorize.css';
-import {Context} from "../context";
+import {useAuth} from "../hook/useAuth";
 
-const Authorize = ({client}) => {
+const Authorize = () => {
     const navigate = useNavigate();
-    const {currentUser, setCurrentUser} = useContext(Context);
+    const {currentUser, register, login} = useAuth();
 
     const [isSignIn, setIsSignIn] = useState(true);
     const [username, setUsername] = useState('');
@@ -16,58 +15,27 @@ const Authorize = ({client}) => {
 
     useEffect(() => {
         if (currentUser) {
-            navigate('/profile/', {replace: true});
+            navigate('/profile', {replace: true})
         }
-    }, [currentUser]);
-
-    useEffect(() => {
-        client.get("/api/userprofile/")
-            .then(function (res) {
-                setCurrentUser(true);
-            })
-            .catch(function (error) {
-                setCurrentUser('');
-            });
     }, []);
 
     const submitRegistration = (e) => {
         e.preventDefault();
-        client.post("/api/register/",
-            {
-                email: email,
-                username: username,
-                password: password,
-                role: role
-            }
-        ).then((res) => {
-            client.post(
-                "/api/login/",
-                {
-                    email: email,
-                    password: password,
-                    role: role
-                }
-            ).then(() => {
-                setCurrentUser(Cookies.get("sessionid"));
-                navigate('/profile/', {replace: true});
-            })
-        })
-    }
+        register({
+            email: email,
+            username: username,
+            password: password,
+            role: role
+        }, () => navigate('profile', {replace: true}));
+    };
 
     const submitLogin = (e) => {
         e.preventDefault();
-        client.post(
-            "/api/login/",
-            {
-                email: email,
-                password: password,
-                role: role
-            }
-        ).then(function (res) {
-            setCurrentUser(true);
-            navigate('/profile/', {replace: true})
-        });
-    }
+        login({
+            email: email,
+            password: password
+        }, () => navigate('profile', {replace: true}));
+    };
 
     const handleSignInClick = () => {
         setIsSignIn(true);
@@ -93,85 +61,80 @@ const Authorize = ({client}) => {
         setRole(event.target.value);
     };
 
-    if (!currentUser) {
-        return (
-            <div className="authorize-container">
-                <div className="authorize-form">
-                    <div className="authorize-options">
-                        <div
-                            className={`authorize-option ${isSignIn ? 'selected' : ''}`}
-                            onClick={handleSignInClick}
-                        >
-                            SIGN IN
-                        </div>
-                        <div
-                            className={`authorize-option ${!isSignIn ? 'selected' : ''}`}
-                            onClick={handleSignUpClick}
-                        >
-                            SIGN UP
-                        </div>
+    return (
+        <div className="authorize-container">
+            <div className="authorize-form">
+                <div className="authorize-options">
+                    <div
+                        className={`authorize-option ${isSignIn ? 'selected' : ''}`}
+                        onClick={handleSignInClick}
+                    >
+                        SIGN IN
                     </div>
-                    {isSignIn ? (
-                        <form onSubmit={submitLogin}>
-                            <input
-                                type="text"
-                                placeholder="Email"
-                                value={email}
-                                onChange={handleEmailChange}
-                                className="authorize-input"
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={handlePasswordChange}
-                                className="authorize-input"
-                            />
-                            <button type="submit" className="authorize-button">
-                                SIGN IN
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={submitRegistration}>
-                            <input
-                                type="text"
-                                placeholder="Username"
-                                value={username}
-                                onChange={handleUsernameChange}
-                                className="authorize-input"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Email"
-                                value={email}
-                                onChange={handleEmailChange}
-                                className="authorize-input"
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={handlePasswordChange}
-                                className="authorize-input"
-                            />
-                            <select value={role} onChange={handleRoleChange} className="authorize-input">
-                                <option value="">Select Role</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Patient">Patient</option>
-                                <option value="Doctor">Doctor</option>
-                            </select>
-                            <button type="submit" className="authorize-button">
-                                SIGN UP
-                            </button>
-                        </form>
-                    )}
+                    <div
+                        className={`authorize-option ${!isSignIn ? 'selected' : ''}`}
+                        onClick={handleSignUpClick}
+                    >
+                        SIGN UP
+                    </div>
                 </div>
+                {isSignIn ? (
+                    <form onSubmit={submitLogin}>
+                        <input
+                            type="text"
+                            placeholder="Email"
+                            value={email}
+                            onChange={handleEmailChange}
+                            className="authorize-input"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            className="authorize-input"
+                        />
+                        <button type="submit" className="authorize-button">
+                            SIGN IN
+                        </button>
+                    </form>
+                ) : (
+                    <form onSubmit={submitRegistration}>
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={username}
+                            onChange={handleUsernameChange}
+                            className="authorize-input"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Email"
+                            value={email}
+                            onChange={handleEmailChange}
+                            className="authorize-input"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            className="authorize-input"
+                        />
+                        <select value={role} onChange={handleRoleChange} className="authorize-input">
+                            <option value="">Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Patient">Patient</option>
+                            <option value="Doctor">Doctor</option>
+                        </select>
+                        <button type="submit" className="authorize-button">
+                            SIGN UP
+                        </button>
+                    </form>
+                )}
             </div>
-        );
-    } else {
-        navigate('/profile/', {replace: true});
-    }
-    ;
+        </div>
+    );
 };
 
 export default Authorize;

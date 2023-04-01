@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {Navigate, useNavigate} from "react-router-dom";
-
+import {useAuth} from "../hook/useAuth";
 import '../styles/Profile.css';
 
-function Profile({client}) {
-    const navigate = useNavigate();
+function Profile() {
     const [user, setUser] = useState({});
+    const {client} = useAuth();
 
     useEffect(() => {
         client.get(`/api/userprofile/`)
@@ -19,7 +18,7 @@ function Profile({client}) {
 
     return (
         <div className="profile">
-            <h1>Профиль пользователя</h1>
+            <h1>User Profile</h1>
             <div className="user-info">
                 <div className="info-row">
                     <span>Username:</span>

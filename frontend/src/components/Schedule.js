@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from "react";
 
 import '../styles/Schedule.css';
+import {useAuth} from "../hook/useAuth";
 
-const Schedule = ({client}) => {
+const Schedule = () => {
+    const {client} = useAuth();
     const [scheduleTable, setScheduleTable] = useState([]);
 
     useEffect(() => {
