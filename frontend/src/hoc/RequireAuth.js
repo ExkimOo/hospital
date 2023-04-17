@@ -1,14 +1,20 @@
-import {Navigate, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useAuth} from "../hook/useAuth";
+import {useEffect} from "react";
 
 const RequireAuth = ({children}) => {
-    const {currentUser} = useAuth();
+    const {role} = useAuth();
     const navigate = useNavigate();
 
-    if (!currentUser) {
-        // return <Navigate to='/' replace={true}/>
-        return navigate('/', {replace: true})
-    }
+    useEffect(() => {
+        if (!role) {
+            navigate('/', {replace: true})
+        }
+    }, [role]);
+
+    // if (!role) {
+    //     return navigate('/', {replace: true})
+    // }
 
     return children;
 }

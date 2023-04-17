@@ -4,7 +4,7 @@ import axios from "axios";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({children}) => {
-    const [currentUser, setCurrentUser] = useState(null);
+    const [role, setRole] = useState(null);
 
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -31,8 +31,11 @@ export const AuthProvider = ({children}) => {
                     role: newUser.role
                 }
             ).then(function (response) {
-                setCurrentUser(response.data.email);
-                cb();
+                client.get(`/api/userprofile/`)
+                    .then(response => {
+                        setRole(response.data.role);
+                        cb();
+                    });
             });
         })
     };
@@ -45,10 +48,12 @@ export const AuthProvider = ({children}) => {
                 password: newUser.password
             }
         ).then(function (response) {
-            setCurrentUser(response.data.email);
-            console.log(currentUser)
+            client.get(`/api/userprofile/`)
+                .then(response => {
+                    setRole(response.data.role);
+                    cb();
+                });
         });
-        cb();
     };
 
     const logout = (cb) => {
@@ -56,13 +61,12 @@ export const AuthProvider = ({children}) => {
             "/api/logout/",
             {withCredentials: true}
         ).then(function (res) {
-            setCurrentUser(null);
-            console.log(currentUser)
+            setRole(null);
             cb();
         });
     };
 
-    const value = {currentUser, client, register, login, logout};
+    const value = {role, client, register, login, logout};
 
     return <AuthContext.Provider value={value}>
         {children}

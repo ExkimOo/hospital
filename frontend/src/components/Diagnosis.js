@@ -1,24 +1,23 @@
 import React, {useEffect, useState} from 'react';
 
+import {useAuth} from "../hook/useAuth";
 import '../styles/Diagnosis.css';
 
-const Diagnosis = ({client}) => {
+const Diagnosis = () => {
     const [diagnosisTable, setDiagnosisTable] = useState([]);
+    const {client} = useAuth();
 
     useEffect(() => {
         client.get(`/api/diagnosisuser`)
             .then(response => {
                 setDiagnosisTable(response.data);
-            })
-            .catch(error => {
-                console.log(error);
             });
     }, []);
 
     return (
         <div className="table-container">
             {diagnosisTable.length > 0 && (
-                <table>
+                <table className='table-diagnosis'>
                     <thead>
                     <tr>
                         {Object.keys(diagnosisTable[0]).map((item) => {

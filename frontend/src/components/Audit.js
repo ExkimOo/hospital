@@ -1,17 +1,16 @@
 import React, {useEffect, useState} from 'react';
 
 import '../styles/Audit.css';
+import {useAuth} from "../hook/useAuth";
 
-const Audit = ({client}) => {
+const Audit = () => {
     const [auditTable, setAuditTable] = useState([]);
+    const {client} = useAuth();
 
     useEffect(() => {
         client.get(`/api/adminaudit`)
             .then(response => {
                 setAuditTable(response.data);
-            })
-            .catch(error => {
-                console.log(error);
             });
     }, []);
 

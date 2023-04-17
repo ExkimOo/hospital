@@ -5,16 +5,16 @@ import {useAuth} from "../hook/useAuth";
 
 const Authorize = () => {
     const navigate = useNavigate();
-    const {currentUser, register, login} = useAuth();
+    const {role, register, login} = useAuth();
 
     const [isSignIn, setIsSignIn] = useState(true);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('');
+    const [userRole, setUserRole] = useState('');
 
     useEffect(() => {
-        if (currentUser) {
+        if (role) {
             navigate('/profile', {replace: true})
         }
     }, []);
@@ -25,7 +25,7 @@ const Authorize = () => {
             email: email,
             username: username,
             password: password,
-            role: role
+            role: userRole
         }, () => navigate('profile', {replace: true}));
     };
 
@@ -58,7 +58,7 @@ const Authorize = () => {
     };
 
     const handleRoleChange = (event) => {
-        setRole(event.target.value);
+        setUserRole(event.target.value);
     };
 
     return (
@@ -121,7 +121,7 @@ const Authorize = () => {
                             onChange={handlePasswordChange}
                             className="authorize-input"
                         />
-                        <select value={role} onChange={handleRoleChange} className="authorize-input">
+                        <select value={userRole} onChange={handleRoleChange} className="authorize-select">
                             <option value="">Select Role</option>
                             <option value="Admin">Admin</option>
                             <option value="Patient">Patient</option>

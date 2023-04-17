@@ -19,21 +19,17 @@ function App() {
                             <Profile/>
                         </RequireAuth>
                     }/>
-                    {/*<Route path="diagnosis" element={*/}
-                    {/*    <RequireAuth>*/}
-                    {/*        <Diagnosis/>*/}
-                    {/*    </RequireAuth>*/}
-                    {/*}/>*/}
-                    {/*<Route path="schedule" element={*/}
-                    {/*    <RequireAuth>*/}
-                    {/*        <Schedule/>*/}
-                    {/*    </RequireAuth>*/}
-                    {/*}/>*/}
-                    {/*<Route path="audit" element={*/}
-                    {/*    <RequireAuth>*/}
-                    {/*        <Audit/>*/}
-                    {/*    </RequireAuth>*/}
-                    {/*}/>*/}
+                    <Route path="diagnosis" element={
+                        <RequireAuth>
+                            <Diagnosis/>
+                        </RequireAuth>
+                    }/>
+                    <Route path="schedule" element={<Schedule/>}/>
+                    <Route path="audit" element={
+                        <RequireAuth>
+                            <Audit/>
+                        </RequireAuth>
+                    }/>
                     {/*<Route path='*' element={}/>*/}
                 </Route>
             </Routes>

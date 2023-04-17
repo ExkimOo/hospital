@@ -11,9 +11,6 @@ const Schedule = () => {
         client.get(`/api/scheduletable`)
             .then(response => {
                 setScheduleTable(response.data);
-            })
-            .catch(error => {
-                console.log(error);
             });
     }, []);
 

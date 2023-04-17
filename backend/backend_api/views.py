@@ -222,7 +222,7 @@ class UserProfile(APIView):
 
 
 class AdminAudit(APIView):
-    permission_classes = (permissions.IsAdminUser)
+    permission_classes = (permissions.IsAdminUser, )
 
     def get(self, request):
         # user_id = request.user.id
@@ -240,7 +240,7 @@ class AdminAudit(APIView):
 
 
 class ScheduleTable(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
         raw_query = '''SELECT  1 as id,

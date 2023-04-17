@@ -1,41 +1,51 @@
 import React, {useContext, useEffect} from 'react';
 import '../styles/Header.css';
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useAuth} from "../hook/useAuth";
 
 
 function Header() {
     const navigate = useNavigate();
-    const {logout} = useAuth();
-    // console.log('header current user', currentUser)
-    // console.log(1)
+    const {role, logout} = useAuth();
 
     const submitLogout = (e) => {
         e.preventDefault();
-        console.log(1)
         logout(() => navigate('/', {replace: true}));
     };
 
     return (
         <header className="header">
             <div className="logo">Hospital</div>
-            {
-                // currentUser &&
-                <div className="buttons">
-                    <form onSubmit={() => {
-                        navigate('/profile', {replace: true});
-                    }}>
+            <div className="buttons">
+                {!role &&
+                    <Link to='/'>
+                        <button className="profile-button">Auth</button>
+                    </Link>
+                }
+                {role &&
+                    <Link to='/profile'>
                         <button className="profile-button">Profile</button>
-                    </form>
-                    <form onSubmit={() => {
-                        navigate('/audit', {replace: true});
-                    }}>
+                    </Link>
+                }
+                <Link to='/schedule'>
+                    <button className="profile-button">Schedule</button>
+                </Link>
+                {role === 'Admin' && role &&
+                    <Link to='/audit'>
                         <button className="profile-button">Audit</button>
-                    </form>
-                    <form onSubmit={submitLogout}>
-                        <button className="sign-out-button">Log Out</button>
-                    </form>
-                </div>}
+                    </Link>
+                }
+                {role &&
+                    <Link to='/diagnosis'>
+                        <button className="profile-button">Diagnosis</button>
+                    </Link>
+                }
+                {role &&
+                    <Link to='/'>
+                        <button className="sign-out-button" type='button' onClick={submitLogout}>Log Out</button>
+                    </Link>
+                }
+            </div>
         </header>
     );
 }

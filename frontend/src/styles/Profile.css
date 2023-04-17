@@ -1,58 +1,68 @@
 .profile {
-  background-color: #1c1c1c;
-  height: 33vh;
-  width: 33vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    background-color: #1c1c1c;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile h1 {
-  text-align: center;
-  color: #fff;
-  margin-top: 0;
+    text-align: center;
+    color: #fff;
+    margin-top: 0;
 }
 
 .user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 20px;
 }
 
 .user-info .info-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .user-info .info-row span {
-  color: #fff;
-  margin-right: 10px;
+    color: #fff;
+    margin-right: 10px;
+}
+
+span {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
 }
 
 .user-info .info-row input {
-  background-color: #2c2c2c;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 5px;
+    font-weight: bold;
+    font-size: 20px;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #fff;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    background: #1c1c1c;
+    color: white;
 }
 
 .logout-button {
-  background-color: red;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-  margin-top: 20px;
-  cursor: pointer;
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
 }
 
 .logout-button:hover {
-  opacity: 0.8;
+    opacity: 0.8;
 }
