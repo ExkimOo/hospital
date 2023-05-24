@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import permissions, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
@@ -11,6 +12,10 @@ from backend_api.serializers import AuditSerializer, DoctorSerializer, PatientSe
     ScheduleSerializer, UserSerializer, RoomSerializer, UserRegisterSerializer, UserLoginSerializer
 from backend_api.validations import custom_validation, validate_email, validate_password, validate_username
 
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return None
 
 class UserRegister(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -112,7 +117,7 @@ class DoctorView(APIView):
                 "name": output.name,
                 "specialization": output.specialization,
                 "created": output.created,
-                "userid": output.userid
+                "userid": output.user_id
             } for output in Doctor.objects.all()
         ]
         return Response(output)
@@ -136,7 +141,7 @@ class PatientView(APIView):
                 "phone": output.phone,
                 "created": output.created,
                 "birthdate": output.birthdate,
-                "userid": output.userid
+                "userid": output.user_id
             } for output in Patient.objects.all()
         ]
         return Response(output)
@@ -167,24 +172,10 @@ class RoomView(APIView):
             return Response(serializer.data)
 
 
-class ScheduleView(APIView):
-    def get(self, request):
-        output = [
-            {
-                "doctorid": output.doctorid,
-                "roomid": output.roomid,
-                "id": output.id,
-                "worktime": output.worktime,
-                "days": output.days
-            } for output in Schedule.objects.all()
-        ]
-        return Response(output)
-
-    def post(self, request):
-        serializer = ScheduleSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+class ScheduleViewSet(viewsets.ModelViewSet):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
 
 
 class DiagnosisView(APIView):
@@ -194,8 +185,8 @@ class DiagnosisView(APIView):
         output = [
             {
                 "id": output.id,
-                "patientid": output.patientid,
-                "doctorid": output.doctorid,
+                "patientid": output.patient_id,
+                "doctorid": output.doctor_id,
                 "disease": output.disease,
                 "visitdate": output.visitdate
             } for output in Diagnosis.objects.all()
@@ -243,7 +234,7 @@ class ScheduleTable(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
-        raw_query = '''SELECT  1 as id,
+        raw_query = '''SELECT  s.id as id,
                                 r.number,
                                 r.name,
                                 d.name AS doctorname,
@@ -256,6 +247,7 @@ class ScheduleTable(APIView):
         table = Schedule.objects.raw(raw_query)
         output = [
             {
+                "id": output.id,
                 "number": output.number,
                 "room_name": output.name,
                 "doctor_name": output.doctorname,

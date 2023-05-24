@@ -6,6 +6,7 @@ from rest_framework import routers
 
 router = routers.SimpleRouter()
 router.register(r'user', UserViewSet)
+router.register(r'schedule', ScheduleViewSet)
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
@@ -19,7 +20,7 @@ urlpatterns = [
     path('api/doctor/', DoctorView.as_view(), name='doctor_view'),
     path('api/patient/', PatientView.as_view(), name='patient_view'),
     path('api/room/', RoomView.as_view(), name='room_view'),
-    path('api/schedule/', ScheduleView.as_view(), name='schedule_view'),
+    # path('api/schedule/', ScheduleViewList.as_view(), name='schedule_view'),
     path('api/diagnosis/', DiagnosisView.as_view(), name='diagnosis_view'),
     path('api/userprofile/', UserProfile.as_view(), name='user_profile'),
     path('api/adminaudit', AdminAudit.as_view(), name='admin_audit'),
