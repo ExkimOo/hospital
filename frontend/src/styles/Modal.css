@@ -1,0 +1,27 @@
+.modal {
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modalContent {
+    /*display: inline-block;*/
+    padding: 25px;
+    background: #222;
+    border-radius: 16px;
+    /*min-width: 250px;*/
+    /*height: 25vh;*/
+    /*width: 35vw;*/
+}
+
+.modal.active {
+    display: flex;
+}
